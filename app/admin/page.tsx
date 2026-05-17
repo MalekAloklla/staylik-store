@@ -9,6 +9,7 @@ import {
   Users,
   Plus,
 } from "lucide-react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminPage() {
@@ -44,25 +45,40 @@ export default function AdminPage() {
 
         <div className="space-y-5 text-white/70">
 
-          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+          <Link
+            href="/admin"
+            className="block w-full text-left hover:text-[#d8cdbd] transition"
+          >
             Dashboard
-          </button>
+          </Link>
 
-          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+          <Link
+            href="/admin/products"
+            className="block w-full text-left hover:text-[#d8cdbd] transition"
+          >
             Products
-          </button>
+          </Link>
 
-          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+          <Link
+            href="/admin/orders"
+            className="block w-full text-left hover:text-[#d8cdbd] transition"
+          >
             Orders
-          </button>
+          </Link>
 
-          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+          <Link
+            href="/admin/customers"
+            className="block w-full text-left hover:text-[#d8cdbd] transition"
+          >
             Customers
-          </button>
+          </Link>
 
-          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+          <Link
+            href="/admin/analytics"
+            className="block w-full text-left hover:text-[#d8cdbd] transition"
+          >
             Analytics
-          </button>
+          </Link>
 
         </div>
 
@@ -254,7 +270,7 @@ export default function AdminPage() {
 
         </div>
 
-      </section>
+            </section>
 
     </main>
   );
