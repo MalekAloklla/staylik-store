@@ -1,11 +1,16 @@
 "use client";
 
+import "./i18n";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { ShoppingBag, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+
+  const { t, i18n } = useTranslation();
 
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -38,23 +43,51 @@ export default function Home() {
   const addToCart = (product: string) => {
     setCart([...cart, `${product} - Size ${selectedSize}`]);
   };
+const checkout = async () => {
 
+  const items = cart.map(() => ({
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: "STAYLIK Hoodie",
+      },
+      unit_amount: 9000,
+    },
+    quantity: 1,
+  }));
+
+  const res = await fetch("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ items }),
+  });
+
+  const data = await res.json();
+
+  window.location.href = data.url;
+
+};
   const fadeUp = {
     hidden: {
       opacity: 0,
-      y: 80,
+      y: 60,
     },
     show: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.8,
+        duration: 0.7,
       },
     },
   };
 
   return (
-    <main className="min-h-screen bg-[#0b0b0b] text-white overflow-hidden">
+    <main
+      dir={i18n.language === "ar" ? "rtl" : "ltr"}
+      className="min-h-screen bg-[#0b0b0b] text-white overflow-hidden"
+    >
 
       {/* GLOW */}
       <div className="fixed top-[-200px] left-[-200px] w-[500px] h-[500px] bg-[#d8cdbd10] blur-[140px] rounded-full"></div>
@@ -62,28 +95,81 @@ export default function Home() {
       <div className="fixed bottom-[-200px] right-[-200px] w-[500px] h-[500px] bg-[#b8955d10] blur-[140px] rounded-full"></div>
 
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/20 border-b border-white/10">
+      <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-2xl bg-black/30 border-b border-white/5">
 
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 py-5">
 
-          <h1 className="text-2xl font-black tracking-[6px] text-[#d8cdbd]">
+          {/* LOGO */}
+          <h1 className="text-xl md:text-2xl font-black tracking-[5px] text-[#d8cdbd]">
             STAYLIK
           </h1>
 
-          <button
-            onClick={() => setCartOpen(true)}
-            className="relative"
-          >
+          {/* LINKS */}
+          <div className="hidden md:flex items-center gap-10 text-sm uppercase tracking-[2px] text-white/70">
 
-            <ShoppingBag className="text-[#d8cdbd]" />
+            <a
+              href="/"
+              className="hover:text-[#d8cdbd] transition"
+            >
+              Home
+            </a>
 
-            <span className="absolute -top-2 -right-2 bg-[#d8cdbd] text-black text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+            <a
+              href="/shop"
+              className="hover:text-[#d8cdbd] transition"
+            >
+              Shop
+            </a>
 
-              {cart.length}
+            <button className="hover:text-[#d8cdbd] transition">
+              About
+            </button>
 
-            </span>
+            <button className="hover:text-[#d8cdbd] transition">
+              Contact
+            </button>
 
-          </button>
+          </div>
+
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-4">
+
+            {/* LANGUAGE */}
+            <div className="flex gap-2">
+
+              <button
+                onClick={() => i18n.changeLanguage("en")}
+                className="bg-white text-black px-3 py-1 rounded-full text-xs font-bold hover:scale-105 transition"
+              >
+                EN
+              </button>
+
+              <button
+                onClick={() => i18n.changeLanguage("ar")}
+                className="bg-white text-black px-3 py-1 rounded-full text-xs font-bold hover:scale-105 transition"
+              >
+                AR
+              </button>
+
+            </div>
+
+            {/* CART */}
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative hover:scale-105 transition"
+            >
+
+              <ShoppingBag className="text-[#d8cdbd]" />
+
+              <span className="absolute -top-2 -right-2 bg-[#d8cdbd] text-black text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+
+                {cart.length}
+
+              </span>
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -91,88 +177,94 @@ export default function Home() {
 
       {/* HERO */}
       <section
-        className="relative flex flex-col items-center justify-center text-center px-6 pt-52 pb-44 overflow-hidden bg-cover bg-center"
-        style={{ backgroundImage: "url('/introstyle.png')" }}
+        className="relative flex flex-col items-center justify-center text-center px-6 pt-40 pb-32 overflow-hidden bg-no-repeat bg-cover bg-center"
+        style={{
+          backgroundImage: "url('/introstyle.png')",
+          backgroundPosition: "center top",
+        }}
       >
 
-        <div className="absolute inset-0 bg-black/70"></div>
+        <div className="absolute inset-0 bg-black/75"></div>
 
         <motion.div
-          initial={{ opacity: 0, y: 80 }}
+          initial={{ opacity: 0, y: 70 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="relative z-10 max-w-4xl"
+          className="relative z-10 max-w-3xl"
         >
 
-          <p className="uppercase tracking-[10px] text-[#d8cdbd] text-sm mb-6">
-            Luxury Streetwear
+          <p className="uppercase tracking-[8px] text-[#d8cdbd] text-xs mb-5">
+            {t("luxury")}
           </p>
 
-          <h2 className="text-5xl md:text-7xl font-black leading-tight">
-
-            ELEVATE
-            <span className="block text-[#d8cdbd]">
-              YOUR STYLE
-            </span>
-
+          <h2 className="text-4xl md:text-6xl font-black leading-tight">
+            {t("welcome")}
           </h2>
 
-          <p className="mt-6 text-white/70">
-            Premium hoodies crafted for modern streetwear lovers.
+          <p className="mt-6 text-white/60 text-sm md:text-base leading-7">
+            {t("premium")}
           </p>
 
         </motion.div>
 
       </section>
 
-      {/* PRODUCTS */}
+      {/* FEATURED PRODUCTS */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-8 pb-32 pt-20"
+        className="max-w-7xl mx-auto px-6 md:px-10 pb-28 pt-10"
       >
 
-        <h3 className="text-5xl font-black mb-14">
-          Featured Drops
-        </h3>
+        <div className="text-center mb-14">
 
-        <div className="grid md:grid-cols-3 gap-8">
+          <p className="uppercase tracking-[6px] text-[#d8cdbd] text-xs mb-4">
+            Featured Collection
+          </p>
 
-          {products.map((item) => (
+          <h3 className="text-3xl md:text-5xl font-black">
+            {t("featured")}
+          </h3>
+
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+          {products.slice(0, 3).map((item) => (
 
             <motion.div
               key={item.id}
               whileHover={{
-                y: -10,
-                scale: 1.02,
+                y: -8,
+                scale: 1.01,
               }}
               onClick={() => {
                 setSelectedProduct(item);
                 setSelectedSize("M");
               }}
-              className="group bg-[#151515] rounded-[30px] overflow-hidden border border-white/5 hover:border-[#d8cdbd30] transition duration-500 cursor-pointer"
+              className="group bg-[#151515] rounded-[24px] overflow-hidden border border-white/5 hover:border-[#d8cdbd20] transition duration-500 cursor-pointer"
             >
 
-              <div className="h-[420px] overflow-hidden">
+              <div className="h-[320px] overflow-hidden">
 
                 <img
                   src={item.image}
-                  className="w-full h-full object-cover group-hover:scale-110 transition duration-700"
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
                 />
 
               </div>
 
-              <div className="p-6">
+              <div className="p-5">
 
-                <h4 className="text-2xl font-bold">
+                <h4 className="text-lg font-bold">
                   {item.name}
                 </h4>
 
-                <div className="flex items-center justify-between mt-6">
+                <div className="flex items-center justify-between mt-5">
 
-                  <span className="text-[#d8cdbd] text-xl font-bold">
+                  <span className="text-[#d8cdbd] text-base font-bold">
                     {item.price}
                   </span>
 
@@ -181,10 +273,10 @@ export default function Home() {
                       e.stopPropagation();
                       addToCart(item.name);
                     }}
-                    className="bg-[#d8cdbd] text-black px-5 py-2 rounded-full hover:scale-105 transition"
+                    className="bg-[#d8cdbd] text-black px-4 py-2 rounded-full text-sm hover:scale-105 transition"
                   >
 
-                    Buy
+                    {t("buy")}
 
                   </button>
 
@@ -200,28 +292,47 @@ export default function Home() {
 
       </motion.section>
 
+      {/* ABOUT */}
+      <section className="max-w-5xl mx-auto px-6 md:px-10 pb-28 text-center">
+
+        <p className="uppercase tracking-[6px] text-[#d8cdbd] text-xs mb-4">
+          About Staylik
+        </p>
+
+        <h3 className="text-3xl md:text-5xl font-black leading-tight mb-8">
+          Minimal Luxury Streetwear
+        </h3>
+
+        <p className="text-white/60 leading-8 text-sm md:text-base">
+          STAYLIK blends premium quality with modern luxury aesthetics.
+          Every piece is designed for people who want clean, timeless,
+          and elevated streetwear.
+        </p>
+
+      </section>
+
       {/* INSTAGRAM */}
       <motion.section
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-8 pb-32"
+        className="max-w-7xl mx-auto px-6 md:px-10 pb-28"
       >
 
-        <div className="text-center mb-16">
+        <div className="text-center mb-14">
 
-          <p className="uppercase tracking-[6px] text-[#d8cdbd] text-sm mb-4">
-            Staylik Community
+          <p className="uppercase tracking-[6px] text-[#d8cdbd] text-xs mb-4">
+            {t("community")}
           </p>
 
-          <h3 className="text-5xl font-black">
-            Instagram Showcase
+          <h3 className="text-3xl md:text-5xl font-black">
+            {t("instagram")}
           </h3>
 
         </div>
 
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-4 gap-5">
 
           {[
             "/hoodie1.jpg",
@@ -231,19 +342,19 @@ export default function Home() {
           ].map((image, index) => (
 
             <motion.div
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.02 }}
               key={index}
-              className="overflow-hidden rounded-[30px] group relative"
+              className="overflow-hidden rounded-[28px] group relative"
             >
 
               <img
                 src={image}
-                className="w-full h-[350px] object-cover group-hover:scale-110 transition duration-700"
+                className="w-full h-[300px] object-cover group-hover:scale-110 transition duration-700"
               />
 
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition duration-500 flex items-center justify-center">
 
-                <span className="text-[#d8cdbd] text-lg font-semibold tracking-[3px]">
+                <span className="text-[#d8cdbd] text-base font-semibold tracking-[3px]">
                   @stayilkstore
                 </span>
 
@@ -263,36 +374,36 @@ export default function Home() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}
-        className="max-w-7xl mx-auto px-8 pb-32"
+        className="max-w-7xl mx-auto px-6 md:px-10 pb-28"
       >
 
-        <div className="text-center mb-16">
+        <div className="text-center mb-14">
 
-          <h3 className="text-5xl font-black">
-            What People Say
+          <h3 className="text-3xl md:text-5xl font-black">
+            {t("reviews")}
           </h3>
 
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-7">
 
           {[
-            "Best hoodie quality I’ve ever worn.",
-            "Feels like a luxury brand.",
-            "People ask me where I bought this from."
+            t("review1"),
+            t("review2"),
+            t("review3")
           ].map((review, index) => (
 
             <motion.div
               whileHover={{ y: -8 }}
               key={index}
-              className="bg-[#151515] border border-white/5 rounded-[30px] p-8"
+              className="bg-[#151515] border border-white/5 rounded-[24px] p-8"
             >
 
-              <div className="text-[#d8cdbd] text-xl mb-6">
+              <div className="text-[#d8cdbd] text-xl mb-5">
                 ★★★★★
               </div>
 
-              <p className="text-white/70 text-lg">
+              <p className="text-white/70 leading-7">
                 {review}
               </p>
 
@@ -305,9 +416,9 @@ export default function Home() {
       </motion.section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 py-10 text-center text-white/40 text-sm">
+      <footer className="border-t border-white/10 py-8 text-center text-white/40 text-sm">
 
-        © 2026 STAYLIK — Luxury Streetwear Brand
+        {t("footer")}
 
       </footer>
 
@@ -346,12 +457,12 @@ export default function Home() {
 
                 </button>
 
-                <h2 className="text-5xl font-black mb-6">
+                <h2 className="text-4xl font-black mb-6">
                   {selectedProduct.name}
                 </h2>
 
-                <p className="text-white/60 mb-8">
-                  Premium oversized hoodie designed for luxury streetwear lovers.
+                <p className="text-white/60 mb-8 leading-7">
+                  {t("popupdesc")}
                 </p>
 
                 <div className="flex gap-4 mb-10">
@@ -390,7 +501,7 @@ export default function Home() {
                     className="bg-[#d8cdbd] text-black px-8 py-4 rounded-full font-bold hover:scale-105 transition"
                   >
 
-                    Add To Cart
+                    {t("addtocart")}
 
                   </button>
 
@@ -421,7 +532,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-10">
 
               <h2 className="text-2xl font-black">
-                Your Cart
+                {t("cart")}
               </h2>
 
               <button onClick={() => setCartOpen(false)}>
@@ -435,7 +546,7 @@ export default function Home() {
               {cart.length === 0 ? (
 
                 <p className="text-white/50">
-                  Your cart is empty.
+                  {t("empty")}
                 </p>
 
               ) : (
@@ -475,12 +586,11 @@ export default function Home() {
 
             </div>
 
-            {/* TOTAL */}
             <div className="mt-10 border-t border-white/10 pt-6">
 
               <div className="flex items-center justify-between mb-4 text-white/60">
 
-                <span>Subtotal</span>
+                <span>{t("subtotal")}</span>
 
                 <span>
                   ${cart.length * 90}
@@ -490,7 +600,7 @@ export default function Home() {
 
               <div className="flex items-center justify-between mb-6 text-white/60">
 
-                <span>Shipping</span>
+                <span>{t("shipping")}</span>
 
                 <span>
                   {cart.length === 0 ? "$0" : "$15"}
@@ -500,7 +610,7 @@ export default function Home() {
 
               <div className="flex items-center justify-between text-xl font-black mb-8">
 
-                <span>Total</span>
+                <span>{t("total")}</span>
 
                 <span className="text-[#d8cdbd]">
 
@@ -512,11 +622,14 @@ export default function Home() {
 
               {cart.length > 0 && (
 
-                <button className="w-full bg-[#d8cdbd] text-black py-4 rounded-full font-bold hover:scale-[1.02] transition">
+                <button
+  onClick={checkout}
+  className="w-full bg-[#d8cdbd] text-black py-4 rounded-full font-bold hover:scale-[1.02] transition"
+>
 
-                  Checkout
+  {t("checkout")}
 
-                </button>
+</button>
 
               )}
 
