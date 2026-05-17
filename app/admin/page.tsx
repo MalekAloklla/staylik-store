@@ -53,7 +53,7 @@ export default function AdminPage() {
           </Link>
 
           <Link
-            href="/admin/products"
+            href="/admin"
             className="block w-full text-left hover:text-[#d8cdbd] transition"
           >
             Products
