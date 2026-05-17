@@ -67,9 +67,24 @@ export default function OrdersPage() {
                 className="border-b border-white/5"
               >
 
-                <td className="p-6 font-semibold">
-                  {order.product_name}
-                </td>
+                <td className="p-6">
+
+  <div className="flex items-center gap-4">
+
+    <img
+      src={order.product_image}
+      className="w-16 h-16 object-cover rounded-xl"
+    />
+
+    <div>
+      <p className="font-semibold">
+        {order.product_name}
+      </p>
+    </div>
+
+  </div>
+
+</td>
 
                 <td className="p-6 text-[#d8cdbd]">
                   {order.amount}

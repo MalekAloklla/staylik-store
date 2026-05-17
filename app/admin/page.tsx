@@ -15,7 +15,7 @@ import { supabase } from "@/lib/supabase";
 export default function AdminPage() {
 
   const [products, setProducts] = useState<any[]>([]);
-
+const [orders, setOrders] = useState<any[]>([]);
   const fetchProducts = async () => {
 
     const { data } = await supabase
@@ -26,6 +26,13 @@ export default function AdminPage() {
     if (data) {
       setProducts(data);
     }
+    const { data: ordersData } = await supabase
+  .from("orders")
+  .select("*");
+
+if (ordersData) {
+  setOrders(ordersData);
+}
 
   };
 
@@ -143,8 +150,9 @@ export default function AdminPage() {
             </p>
 
             <h3 className="text-4xl font-black">
-              0
-            </h3>
+              {orders.length}
+              </h3>
+          
 
           </motion.div>
 

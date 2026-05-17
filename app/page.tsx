@@ -40,21 +40,22 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  const addToCart = (product: string) => {
-    setCart([...cart, `${product} - Size ${selectedSize}`]);
-  };
+  const addToCart = (product: any) => {
+  setCart([...cart, product]);
+};
 const checkout = async () => {
 
-  const items = cart.map(() => ({
-    price_data: {
-      currency: "usd",
-      product_data: {
-        name: "STAYLIK Hoodie",
-      },
-      unit_amount: 9000,
+  const items = cart.map((item: any) => ({
+  price_data: {
+    currency: "usd",
+    product_data: {
+      name: item.name,
+      images: [item.image],
     },
-    quantity: 1,
-  }));
+    unit_amount: item.price * 100,
+  },
+  quantity: 1,
+}));
 
   const res = await fetch("/api/checkout", {
     method: "POST",
@@ -271,7 +272,7 @@ const checkout = async () => {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      addToCart(item.name);
+                      addToCart(item);
                     }}
                     className="bg-[#d8cdbd] text-black px-4 py-2 rounded-full text-sm hover:scale-105 transition"
                   >
