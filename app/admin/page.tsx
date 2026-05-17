@@ -1,288 +1,260 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Plus, LogOut, Upload } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
+import { motion } from "framer-motion";
+import {
+  Package,
+  ShoppingCart,
+  DollarSign,
+  Users,
+  Plus,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
 
-  const router = useRouter();
-
-  const [loading, setLoading] = useState(true);
-
   const [products, setProducts] = useState<any[]>([]);
 
-  const [name, setName] = useState("");
-
-  const [price, setPrice] = useState("");
-
-  const [imageFile, setImageFile] = useState<File | null>(null);
-
-  // CHECK AUTH
-  const checkAuth = async () => {
-
-    const { data } = await supabase.auth.getSession();
-
-    if (!data.session) {
-      router.push("/login");
-      return;
-    }
-
-    setLoading(false);
-
-  };
-
-  // FETCH PRODUCTS
   const fetchProducts = async () => {
 
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("products")
       .select("*")
       .order("id", { ascending: false });
 
-    if (!error && data) {
+    if (data) {
       setProducts(data);
     }
 
   };
 
   useEffect(() => {
-
-    checkAuth();
-
     fetchProducts();
-
   }, []);
 
-  // ADD PRODUCT
-  const addProduct = async () => {
-
-    if (!name || !price || !imageFile) {
-      toast.error("Fill all fields");
-      return;
-    }
-
-    const fileName = `${Date.now()}-${imageFile.name}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("products")
-      .upload(fileName, imageFile);
-
-    if (uploadError) {
-      toast.error("Image upload failed");
-      return;
-    }
-
-    const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/products/${fileName}`;
-
-    const { error } = await supabase
-      .from("products")
-      .insert([
-        {
-          name,
-          price,
-          image: imageUrl,
-        },
-      ]);
-
-    if (!error) {
-
-      toast.success("Product Added");
-
-      setName("");
-      setPrice("");
-      setImageFile(null);
-
-      fetchProducts();
-
-    }
-
-  };
-
-  // DELETE PRODUCT
-  const deleteProduct = async (id: number) => {
-
-    const { error } = await supabase
-      .from("products")
-      .delete()
-      .eq("id", id);
-
-    if (!error) {
-
-      toast.success("Product Deleted");
-
-      fetchProducts();
-
-    }
-
-  };
-
-  // LOGOUT
-  const logout = async () => {
-
-    await supabase.auth.signOut();
-
-    router.push("/login");
-
-  };
-
-  if (loading) {
-
-    return (
-      <main className="min-h-screen bg-black flex items-center justify-center text-white text-2xl font-bold">
-        Loading...
-      </main>
-    );
-
-  }
-
   return (
-    <main className="min-h-screen bg-[#0b0b0b] text-white p-8">
+    <main className="min-h-screen bg-[#0b0b0b] text-white flex">
 
-      <Toaster />
+      {/* SIDEBAR */}
+      <aside className="w-[260px] border-r border-white/10 bg-black/40 p-8 hidden md:block">
 
-      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-black tracking-[6px] text-[#d8cdbd] mb-14">
+          STAYLIK
+        </h1>
 
-        <div className="mb-16 flex items-center justify-between gap-6">
+        <div className="space-y-5 text-white/70">
+
+          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+            Dashboard
+          </button>
+
+          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+            Products
+          </button>
+
+          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+            Orders
+          </button>
+
+          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+            Customers
+          </button>
+
+          <button className="w-full text-left hover:text-[#d8cdbd] transition">
+            Analytics
+          </button>
+
+        </div>
+
+      </aside>
+
+      {/* CONTENT */}
+      <section className="flex-1 p-6 md:p-10 overflow-hidden">
+
+        {/* TOP */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
 
           <div>
 
-            <p className="uppercase tracking-[6px] text-[#d8cdbd] text-sm mb-4">
-              Staylik Dashboard
+            <p className="uppercase tracking-[6px] text-[#d8cdbd] text-xs mb-3">
+              Admin Dashboard
             </p>
 
-            <h1 className="text-6xl font-black">
-              Admin Panel
-            </h1>
+            <h2 className="text-4xl md:text-5xl font-black">
+              Welcome Back
+            </h2>
 
           </div>
 
-          <button
-            onClick={logout}
-            className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-2xl flex items-center gap-3 hover:bg-red-500/20 transition"
-          >
+          <button className="bg-[#d8cdbd] text-black px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition">
 
-            <LogOut size={20} />
-
-            Logout
+            <Plus size={18} />
+            Add Product
 
           </button>
 
         </div>
 
-        {/* ADD PRODUCT */}
-        <div className="bg-[#151515] border border-white/5 rounded-[30px] p-8 mb-12">
+        {/* STATS */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
 
-          <h2 className="text-3xl font-bold mb-8">
-            Add Product
-          </h2>
+          <motion.div
+            whileHover={{ y: -5 }}
+            className="bg-[#151515] border border-white/5 rounded-[28px] p-6"
+          >
 
-          <div className="grid md:grid-cols-4 gap-6">
+            <Package className="text-[#d8cdbd] mb-5" />
 
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Product Name"
-              className="bg-[#0f0f0f] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-            />
+            <p className="text-white/50 text-sm mb-2">
+              Total Products
+            </p>
 
-            <input
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Price"
-              className="bg-[#0f0f0f] border border-white/10 rounded-2xl px-5 py-4 outline-none"
-            />
+            <h3 className="text-4xl font-black">
+              {products.length}
+            </h3>
 
-            <label className="bg-[#0f0f0f] border border-white/10 rounded-2xl px-5 py-4 flex items-center gap-3 cursor-pointer hover:border-[#d8cdbd50] transition">
+          </motion.div>
 
-              <Upload size={20} />
+          <motion.div
+            whileHover={{ y: -5 }}
+            className="bg-[#151515] border border-white/5 rounded-[28px] p-6"
+          >
 
-              Upload Image
+            <ShoppingCart className="text-[#d8cdbd] mb-5" />
 
-              <input
-                type="file"
-                hidden
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    setImageFile(e.target.files[0]);
-                  }
-                }}
-              />
+            <p className="text-white/50 text-sm mb-2">
+              Orders
+            </p>
 
-            </label>
+            <h3 className="text-4xl font-black">
+              0
+            </h3>
 
-            <button
-              onClick={addProduct}
-              className="bg-[#d8cdbd] text-black rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-[1.02] transition"
-            >
+          </motion.div>
 
-              <Plus size={20} />
+          <motion.div
+            whileHover={{ y: -5 }}
+            className="bg-[#151515] border border-white/5 rounded-[28px] p-6"
+          >
 
-              Add Product
+            <DollarSign className="text-[#d8cdbd] mb-5" />
 
-            </button>
+            <p className="text-white/50 text-sm mb-2">
+              Revenue
+            </p>
 
-          </div>
+            <h3 className="text-4xl font-black">
+              $0
+            </h3>
+
+          </motion.div>
+
+          <motion.div
+            whileHover={{ y: -5 }}
+            className="bg-[#151515] border border-white/5 rounded-[28px] p-6"
+          >
+
+            <Users className="text-[#d8cdbd] mb-5" />
+
+            <p className="text-white/50 text-sm mb-2">
+              Customers
+            </p>
+
+            <h3 className="text-4xl font-black">
+              0
+            </h3>
+
+          </motion.div>
 
         </div>
 
         {/* PRODUCTS */}
-        <div className="bg-[#151515] border border-white/5 rounded-[30px] p-8">
+        <div className="bg-[#151515] border border-white/5 rounded-[30px] overflow-hidden">
 
-          <h2 className="text-3xl font-bold mb-8">
-            Products
-          </h2>
+          <div className="p-6 border-b border-white/5 flex items-center justify-between">
 
-          <div className="space-y-5">
+            <h3 className="text-2xl font-black">
+              Products
+            </h3>
 
-            {products.map((product) => (
+            <span className="text-white/40 text-sm">
+              {products.length} Items
+            </span>
 
-              <div
-                key={product.id}
-                className="bg-[#0f0f0f] border border-white/5 rounded-2xl px-6 py-5 flex items-center justify-between"
-              >
+          </div>
 
-                <div className="flex items-center gap-5">
+          <div className="overflow-x-auto">
 
-                  <img
-                    src={product.image}
-                    className="w-20 h-20 object-cover rounded-2xl"
-                  />
+            <table className="w-full">
 
-                  <div>
+              <thead>
 
-                    <h3 className="text-xl font-bold">
-                      {product.name}
-                    </h3>
+                <tr className="text-left text-white/40 text-sm border-b border-white/5">
 
-                    <p className="text-[#d8cdbd] mt-1">
-                      {product.price}
-                    </p>
+                  <th className="p-6">Image</th>
+                  <th className="p-6">Name</th>
+                  <th className="p-6">Price</th>
+                  <th className="p-6">Actions</th>
 
-                  </div>
+                </tr>
 
-                </div>
+              </thead>
 
-                <button
-                  onClick={() => deleteProduct(product.id)}
-                  className="text-red-400 hover:text-red-300 transition"
-                >
+              <tbody>
 
-                  <Trash2 />
+                {products.map((item) => (
 
-                </button>
+                  <tr
+                    key={item.id}
+                    className="border-b border-white/5 hover:bg-white/[0.02] transition"
+                  >
 
-              </div>
+                    <td className="p-6">
 
-            ))}
+                      <img
+                        src={item.image}
+                        className="w-20 h-20 object-cover rounded-2xl"
+                      />
+
+                    </td>
+
+                    <td className="p-6 font-semibold">
+                      {item.name}
+                    </td>
+
+                    <td className="p-6 text-[#d8cdbd] font-bold">
+                      {item.price}
+                    </td>
+
+                    <td className="p-6">
+
+                      <div className="flex gap-3">
+
+                        <button className="bg-white/10 px-4 py-2 rounded-full text-sm hover:bg-white/20 transition">
+                          Edit
+                        </button>
+
+                        <button className="bg-red-500/20 text-red-300 px-4 py-2 rounded-full text-sm hover:bg-red-500/30 transition">
+                          Delete
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
 
           </div>
 
         </div>
 
-      </div>
+      </section>
 
     </main>
   );
