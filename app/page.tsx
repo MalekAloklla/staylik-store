@@ -416,11 +416,122 @@ const checkout = async () => {
       </motion.section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/10 py-8 text-center text-white/40 text-sm">
+<footer className="border-t border-white/10 mt-24 bg-black">
 
-        {t("footer")}
+  <div className="max-w-7xl mx-auto px-6 md:px-10 py-20 grid md:grid-cols-4 gap-12">
 
-      </footer>
+    {/* BRAND */}
+    <div>
+
+      <h2 className="text-3xl font-black tracking-[6px] text-[#d8cdbd] mb-6">
+        STAYLIK
+      </h2>
+
+      <p className="text-white/50 leading-7 text-sm">
+        Luxury streetwear crafted for modern fashion lovers.
+        Premium quality with timeless aesthetics.
+      </p>
+
+    </div>
+
+    {/* LINKS */}
+    <div>
+
+      <h3 className="text-white text-lg font-bold mb-6">
+        INFO
+      </h3>
+
+      <div className="flex flex-col gap-4 text-white/60 text-sm">
+
+        <a href="#" className="hover:text-[#d8cdbd] transition">
+          Shipping & Delivery
+        </a>
+
+        <a href="#" className="hover:text-[#d8cdbd] transition">
+          Returns & Refunds
+        </a>
+
+        <a href="#" className="hover:text-[#d8cdbd] transition">
+          Privacy Policy
+        </a>
+
+        <a href="#" className="hover:text-[#d8cdbd] transition">
+          Contact Us
+        </a>
+
+      </div>
+
+    </div>
+
+    {/* SOCIAL */}
+    <div>
+
+      <h3 className="text-white text-lg font-bold mb-6">
+        FOLLOW US
+      </h3>
+
+      <div className="flex gap-5 text-white/70 text-3xl">
+
+        <a
+          href="https://instagram.com/stayilkstore"
+          target="_blank"
+          className="hover:text-[#d8cdbd] transition"
+        >
+          Instagram
+        </a>
+
+      </div>
+
+    </div>
+
+    {/* NEWSLETTER */}
+    <div>
+
+      <h3 className="text-white text-lg font-bold mb-6">
+        NEWSLETTER
+      </h3>
+
+      <p className="text-white/50 text-sm mb-5">
+        Get updates about new drops and exclusive offers.
+      </p>
+
+      <div className="flex overflow-hidden rounded-full border border-white/10">
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="bg-transparent px-5 py-4 w-full outline-none text-sm"
+        />
+
+        <button className="bg-[#d8cdbd] text-black px-6 font-bold">
+          JOIN
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* BOTTOM */}
+  <div className="border-t border-white/10 py-6 px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 text-white/40 text-sm">
+
+    <span>
+      © 2026 STAYLIK. All rights reserved.
+    </span>
+
+    <div className="flex gap-4">
+
+      <span>Visa</span>
+      <span>Mastercard</span>
+      <span>PayPal</span>
+      <span>Apple Pay</span>
+
+    </div>
+
+  </div>
+
+</footer>
 
       {/* PRODUCT POPUP */}
       <AnimatePresence>
