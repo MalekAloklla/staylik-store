@@ -11,34 +11,53 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-
+import { useRouter } from "next/navigation";
 export default function AdminPage() {
+
+const router = useRouter();
+
+
+const logout = () => {
+
+  window.location.href =
+    "http://logout:logout@localhost:3000/admin";
+
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 100);
+
+};
 
   const [products, setProducts] = useState<any[]>([]);
 const [orders, setOrders] = useState<any[]>([]);
   const fetchProducts = async () => {
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .order("id", { ascending: false });
 
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .order("id", { ascending: false });
+  if (data) {
+    setProducts(data);
+  }
 
-    if (data) {
-      setProducts(data);
-    }
-    const { data: ordersData } = await supabase
-  .from("orders")
-  .select("*");
+  const { data: ordersData } = await supabase
+    .from("orders")
+    .select("*");
 
-if (ordersData) {
-  setOrders(ordersData);
-}
-
-  };
+  if (ordersData) {
+    setOrders(ordersData);
+  }
+};
 
   useEffect(() => {
+  fetchProducts();
+
+  const interval = setInterval(() => {
     fetchProducts();
-  }, []);
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
 
   return (
     <main className="min-h-screen bg-[#0b0b0b] text-white flex">
@@ -106,15 +125,22 @@ if (ordersData) {
             <h2 className="text-4xl md:text-5xl font-black">
               Welcome Back
             </h2>
+            <button
+  onClick={logout}
+  className="mt-4 bg-red-500 text-white px-5 py-2 rounded-full text-sm font-bold hover:scale-105 transition"
+>
+  Logout
+</button>
 
           </div>
 
-          <button className="bg-[#d8cdbd] text-black px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition">
-
-            <Plus size={18} />
-            Add Product
-
-          </button>
+          <button
+  onClick={() => router.push("/admin/product")}
+  className="bg-[#d8cdbd] text-black px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:scale-105 transition"
+>
+  <Plus size={18} />
+  Add Product
+</button>
 
         </div>
 

@@ -23,8 +23,16 @@ export default function OrdersPage() {
   };
 
   useEffect(() => {
+
+  fetchOrders();
+
+  const interval = setInterval(() => {
     fetchOrders();
-  }, []);
+  }, 1000);
+
+  return () => clearInterval(interval);
+
+}, []);
 
   return (
     <main className="min-h-screen bg-[#0b0b0b] text-white p-10">
@@ -70,11 +78,6 @@ export default function OrdersPage() {
                 <td className="p-6">
 
   <div className="flex items-center gap-4">
-
-    <img
-      src={order.product_image}
-      className="w-16 h-16 object-cover rounded-xl"
-    />
 
     <div>
       <p className="font-semibold">

@@ -23,17 +23,33 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cancel`,
     });
 
-    await supabase.from("orders").insert(
-  items.map((item: any) => ({
-    customer_email: "customer",
-    product_name: item.price_data.product_data.name,
-    product_image: item.price_data.product_data.images[0],
-    amount: `$${item.price_data.unit_amount / 100}`,
-    status: "Paid",
-  }))
-);
+    const { data, error } = await supabase
+  .from("orders")
+  .insert(
+    items.map((item: any) => ({
+      customer_email: "customer",
+      product_name: item.price_data.product_data.name,
+      product_image: item.price_data.product_data.images[0],
+      amount: `$${item.price_data.unit_amount / 100}`,
+      status: "Paid",
+    }))
+  );
 
-    return NextResponse.json({ url: session.url });
+console.log(data);
+
+if (error) {
+  console.log(error);
+  return NextResponse.json(
+    { error: error.message },
+    { status: 500 }
+  );
+}
+
+console.log(session.url);
+
+return NextResponse.json({
+  url: session.url
+});
 
   } catch (error) {
 

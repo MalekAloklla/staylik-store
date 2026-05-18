@@ -14,7 +14,7 @@ export default function Home() {
 
   const [cartOpen, setCartOpen] = useState(false);
 
-  const [cart, setCart] = useState<string[]>([]);
+  const [cart, setCart] = useState<any[]>([]);
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
@@ -37,11 +37,56 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+
+  fetchProducts();
+
+  const savedCart = localStorage.getItem("cart");
+
+  if (savedCart) {
+    setCart(JSON.parse(savedCart));
+  }
+
+}, []);
+
+useEffect(() => {
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+}, [cart]);
 
   const addToCart = (product: any) => {
-  setCart([...cart, product]);
+
+  const existingProduct = cart.find(
+    (item) => item.id === product.id
+  );
+
+  if (existingProduct) {
+
+    const updatedCart = cart.map((item) =>
+
+      item.id === product.id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+
+    );
+    
+    setCart(updatedCart);
+
+  } else {
+
+    setCart([
+      ...cart,
+      {
+        ...product,
+        quantity: 1,
+      },
+    ]);
+
+  }
+
 };
 const checkout = async () => {
 
@@ -52,11 +97,11 @@ const checkout = async () => {
       name: item.name,
       images: [item.image],
     },
-    unit_amount: item.price * 100,
+    unit_amount:
+  Number((item.price || "$0").replace("$", "")) * 100,
   },
-  quantity: 1,
+  quantity: item.quantity,
 }));
-
   const res = await fetch("/api/checkout", {
     method: "POST",
     headers: {
@@ -83,7 +128,19 @@ const checkout = async () => {
       },
     },
   };
+const subtotal = cart.reduce((total, item) => {
 
+  return (
+    total +
+    Number((item.price || "$0").replace("$", "")) *
+    item.quantity
+  );
+
+}, 0);
+
+const shipping = cart.length > 0 ? 30 : 0;
+
+const total = subtotal + shipping;
   return (
     <main
       dir={i18n.language === "ar" ? "rtl" : "ltr"}
@@ -177,41 +234,78 @@ const checkout = async () => {
       </nav>
 
       {/* HERO */}
-      <section
-        className="relative flex flex-col items-center justify-center text-center px-6 pt-40 pb-32 overflow-hidden bg-no-repeat bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/introstyle.png')",
-          backgroundPosition: "center top",
-        }}
-      >
+      <section className="relative min-h-screen overflow-hidden bg-[#0b0b0b] text-white flex items-center justify-center px-6">
 
-        <div className="absolute inset-0 bg-black/75"></div>
+  <div className="absolute inset-0">
 
-        <motion.div
-          initial={{ opacity: 0, y: 70 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="relative z-10 max-w-3xl"
-        >
+  <img
+  src="/introstyle.png"
+  className="w-full h-full object-cover opacity-20 scale-110 blur-sm"
+/>
 
-          <p className="uppercase tracking-[8px] text-[#d8cdbd] text-xs mb-5">
-            {t("luxury")}
-          </p>
+  <div className="absolute inset-0 bg-black/50" />
 
-          <h2 className="text-4xl md:text-6xl font-black leading-tight">
-            {t("welcome")}
-          </h2>
+</div>
 
-          <p className="mt-6 text-white/60 text-sm md:text-base leading-7">
-            {t("premium")}
-          </p>
+  <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black/80" />
 
-        </motion.div>
+  <div className="relative z-10 max-w-7xl w-full grid lg:grid-cols-[0.9fr_1.1fr] items-center gap-10">
 
-      </section>
+    <div>
+
+      <p className="uppercase tracking-[8px] text-[#e7dccb] text-xs mb-6">
+        Staylik Luxury Collection
+      </p>
+
+      <h1 className="text-5xl md:text-7xl font-black leading-none mb-8">
+        Redefine
+        <br />
+        Street Luxury.
+      </h1>
+
+      <p className="text-white/60 text-lg leading-relaxed max-w-xl mb-10">
+        Premium oversized essentials crafted for modern streetwear.
+        Minimal design, luxury feel, timeless aesthetic.
+      </p>
+
+      <div className="flex gap-4">
+
+        <a
+  href="#shop" className="bg-[#d8cdbd] text-black px-8 py-4 rounded-full font-bold hover:scale-105 transition">
+          Shop Now
+        </a>
+
+        <a
+  href="#showcase"
+  className="border border-white/10 px-8 py-4 rounded-full hover:bg-white/5 transition"
+>
+  Explore Collection
+</a>
+
+      </div>
+
+    </div>
+
+  
+
+  
+
+    <div className="relative hidden lg:flex justify-end items-end h-[800px]">
+
+      <img
+        src="/introstyle.png"
+        className="h-[780px] object-contain object-bottom drop-shadow-[0_0_60px_rgba(0,0,0,0.9)]"
+      />
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* FEATURED PRODUCTS */}
       <motion.section
+  id="shop"
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
@@ -245,14 +339,14 @@ const checkout = async () => {
                 setSelectedProduct(item);
                 setSelectedSize("M");
               }}
-              className="group bg-[#151515] rounded-[24px] overflow-hidden border border-white/5 hover:border-[#d8cdbd20] transition duration-500 cursor-pointer"
+              className="group bg-[#111] rounded-[32px] overflow-hidden border border-white/5 hover:border-[#e7dccb30] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(231,220,203,0.08)]"
             >
 
-              <div className="h-[320px] overflow-hidden">
+              <div className="h-[380px] overflow-hidden bg-[#0d0d0d]">
 
                 <img
                   src={item.image}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+                  className="w-full h-full object-cover group-hover:scale-110 transition duration-1000"
                 />
 
               </div>
@@ -314,6 +408,7 @@ const checkout = async () => {
 
       {/* INSTAGRAM */}
       <motion.section
+      id="showcase"
         variants={fadeUp}
         initial="hidden"
         whileInView="show"
@@ -333,13 +428,12 @@ const checkout = async () => {
 
         </div>
 
-        <div className="grid md:grid-cols-4 gap-5">
+        <div className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
 
           {[
             "/hoodie1.jpg",
             "/hoodie2.jpg",
             "/hoodie3.jpg",
-            "/introstyle.png",
           ].map((image, index) => (
 
             <motion.div
@@ -672,23 +766,85 @@ const checkout = async () => {
 
                     <div className="flex items-center justify-between gap-4">
 
-                      <span className="text-sm">
-                        {item}
-                      </span>
+  <span className="text-sm">
 
-                      <button
-                        onClick={() => {
-                          const updatedCart = cart.filter((_, i) => i !== index);
-                          setCart(updatedCart);
-                        }}
-                        className="text-red-400 hover:text-red-300 transition text-sm"
-                      >
+  {item.name}
 
-                        Remove
+  <p className="text-white/50 text-xs">
+  Qty: {item.quantity}
+</p>
 
-                      </button>
+<p className="text-[#d8cdbd] text-sm font-bold mt-1">
+  $
+  {(
+    Number((item.price || "$0").replace("$", "")) *
+    item.quantity
+  ).toFixed(2)}
+</p>
 
-                    </div>
+  <div className="flex gap-2 mt-2">
+
+    <button
+      onClick={() => {
+
+        const updatedCart = cart.map((cartItem) =>
+
+          cartItem.id === item.id
+            ? {
+                ...cartItem,
+                quantity: cartItem.quantity + 1,
+              }
+            : cartItem
+
+        );
+
+        setCart(updatedCart);
+
+      }}
+      className="bg-white/10 px-2 rounded"
+    >
+      +
+    </button>
+
+    <button
+      onClick={() => {
+
+        const updatedCart = cart.map((cartItem) =>
+
+          cartItem.id === item.id
+            ? {
+                ...cartItem,
+                quantity:
+                  cartItem.quantity > 1
+                    ? cartItem.quantity - 1
+                    : 1,
+              }
+            : cartItem
+
+        );
+
+        setCart(updatedCart);
+
+      }}
+      className="bg-white/10 px-2 rounded"
+    >
+      -
+    </button>
+
+  </div>
+
+</span>
+
+<button
+  onClick={() =>
+    setCart(cart.filter((_, i) => i !== index))
+  }
+  className="text-red-500 text-xs"
+>
+  Remove
+</button>
+
+</div>
 
                   </div>
 
@@ -705,7 +861,7 @@ const checkout = async () => {
                 <span>{t("subtotal")}</span>
 
                 <span>
-                  ${cart.length * 90}
+                  ${subtotal.toFixed(2)}
                 </span>
 
               </div>
@@ -715,7 +871,7 @@ const checkout = async () => {
                 <span>{t("shipping")}</span>
 
                 <span>
-                  {cart.length === 0 ? "$0" : "$15"}
+                  ${shipping.toFixed(2)}
                 </span>
 
               </div>
@@ -726,7 +882,7 @@ const checkout = async () => {
 
                 <span className="text-[#d8cdbd]">
 
-                  ${cart.length === 0 ? 0 : cart.length * 90 + 15}
+                  ${total.toFixed(2)}
 
                 </span>
 
