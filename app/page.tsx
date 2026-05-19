@@ -21,7 +21,11 @@ export default function Home() {
   const [selectedSize, setSelectedSize] = useState("M");
 
   const [products, setProducts] = useState<any[]>([]);
-
+const [fullName, setFullName] = useState("");
+const [phone, setPhone] = useState("");
+const [email, setEmail] = useState("");
+const [address, setAddress] = useState("");
+const [message, setMessage] = useState("");
   // FETCH PRODUCTS
   const fetchProducts = async () => {
 
@@ -89,7 +93,23 @@ useEffect(() => {
 
 };
 const checkout = async () => {
-
+if (!fullName || !phone || !email || !address) {
+  alert("Please fill all required fields");
+  return;
+}
+await supabase.from("orders").insert([
+  {
+    customer_email: email,
+    full_name: fullName,
+    phone: phone,
+    address: address,
+    message: message,
+    product_name: cart.map((item) => item.name).join(", "),
+    amount: `$${total.toFixed(2)}`,
+    status: "Pending",
+    product_image: cart[0]?.image || "",
+  },
+]);
   const items = cart.map((item: any) => ({
   price_data: {
     currency: "usd",
@@ -889,20 +909,63 @@ const total = subtotal + shipping;
               </div>
 
               {cart.length > 0 && (
+  <>
+    <div className="space-y-3 mb-6">
+  <input
+    type="text"
+    placeholder="Full Name"
+    value={fullName}
+    onChange={(e) => setFullName(e.target.value)}
+    required
+    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none"
+  />
 
-                <button
-  onClick={checkout}
-  className="w-full bg-[#d8cdbd] text-black py-4 rounded-full font-bold hover:scale-[1.02] transition"
->
+  <input
+    type="text"
+    placeholder="Phone Number"
+    value={phone}
+    onChange={(e) => setPhone(e.target.value)}
+    required
+    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none"
+  />
 
-  {t("checkout")}
+  <input
+    type="email"
+    placeholder="Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    required
+    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none"
+  />
 
-</button>
+  <input
+    type="text"
+    placeholder="Delivery Address"
+    value={address}
+    onChange={(e) => setAddress(e.target.value)}
+    required
+    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none"
+  />
 
-              )}
+  <textarea
+    placeholder="Message to the store..."
+    value={message}
+    onChange={(e) => setMessage(e.target.value)}
+    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none h-28 resize-none"
+  />
+      </div>
 
-            </div>
+    <button
+      onClick={checkout}
+      className="w-full bg-[#d8cdbd] text-black py-4 rounded-full font-bold hover:scale-[1.02] transition"
+    >
+      {t("checkout")}
+    </button>
+  </>
+)}
 
+            
+</div>
           </motion.div>
 
         )}
