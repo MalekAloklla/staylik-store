@@ -4,17 +4,18 @@ import "./i18n";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { ShoppingBag, X } from "lucide-react";
+import { ShoppingBag, } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useTranslation } from "react-i18next";
-
+import { MessageCircle, X } from "lucide-react";
 export default function Home() {
+
+  const [showCookies, setShowCookies] = useState(true);
 
   const { t, i18n } = useTranslation();
 
-  const [cartOpen, setCartOpen] = useState(false);
-
   const [cart, setCart] = useState<any[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
 
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
@@ -26,6 +27,10 @@ const [phone, setPhone] = useState("");
 const [email, setEmail] = useState("");
 const [address, setAddress] = useState("");
 const [message, setMessage] = useState("");
+const [chatOpen, setChatOpen] = useState(false);
+const [chatMessage, setChatMessage] = useState("");
+const [messages, setMessages] = useState<any[]>([]);
+const [chatLoading, setChatLoading] = useState(false);
   // FETCH PRODUCTS
   const fetchProducts = async () => {
 
@@ -110,29 +115,8 @@ await supabase.from("orders").insert([
     product_image: cart[0]?.image || "",
   },
 ]);
-  const items = cart.map((item: any) => ({
-  price_data: {
-    currency: "usd",
-    product_data: {
-      name: item.name,
-      images: [item.image],
-    },
-    unit_amount:
-  Number((item.price || "$0").replace("$", "")) * 100,
-  },
-  quantity: item.quantity,
-}));
-  const res = await fetch("/api/checkout", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ items }),
-  });
-
-  const data = await res.json();
-
-  window.location.href = data.url;
+  alert("Order placed successfully! Please complete the bank transfer.");
+setCart([]);
 
 };
   const fadeUp = {
@@ -161,6 +145,51 @@ const subtotal = cart.reduce((total, item) => {
 const shipping = cart.length > 0 ? 30 : 0;
 
 const total = subtotal + shipping;
+const sendMessage = async () => {
+
+  if (!chatMessage) return;
+
+  setChatLoading(true);
+
+  try {
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: chatMessage,
+      }),
+    });
+
+    const data = await res.json();
+await new Promise((resolve) =>
+  setTimeout(resolve, 1800)
+);
+    setMessages((prev) => [
+  ...prev,
+  {
+    role: "user",
+    text: chatMessage,
+  },
+  {
+    role: "assistant",
+    text: data.reply,
+  },
+]);
+
+setChatMessage("");
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+  setChatLoading(false);
+
+};
   return (
     <main
       dir={i18n.language === "ar" ? "rtl" : "ltr"}
@@ -199,13 +228,19 @@ const total = subtotal + shipping;
               Shop
             </a>
 
-            <button className="hover:text-[#d8cdbd] transition">
-              About
-            </button>
+            <a
+  href="/about"
+  className="hover:text-[#d8cdbd] transition"
+>
+  About
+</a>
 
-            <button className="hover:text-[#d8cdbd] transition">
-              Contact
-            </button>
+            <a
+  href="/contact"
+  className="hover:text-[#d8cdbd] transition"
+>
+  Contact
+</a>
 
           </div>
 
@@ -233,7 +268,7 @@ const total = subtotal + shipping;
 
             {/* CART */}
             <button
-              onClick={() => setCartOpen(true)}
+              onClick={() => window.location.href = "/cart"}
               className="relative hover:scale-105 transition"
             >
 
@@ -558,21 +593,21 @@ const total = subtotal + shipping;
 
       <div className="flex flex-col gap-4 text-white/60 text-sm">
 
-        <a href="#" className="hover:text-[#d8cdbd] transition">
-          Shipping & Delivery
-        </a>
+        <a href="/shipping" className="hover:text-[#d8cdbd] transition">
+  Shipping & Delivery
+</a>
 
-        <a href="#" className="hover:text-[#d8cdbd] transition">
-          Returns & Refunds
-        </a>
+<a href="/returns" className="hover:text-[#d8cdbd] transition">
+  Returns & Refunds
+</a>
 
-        <a href="#" className="hover:text-[#d8cdbd] transition">
-          Privacy Policy
-        </a>
+<a href="/privacy" className="hover:text-[#d8cdbd] transition">
+  Privacy Policy
+</a>
 
-        <a href="#" className="hover:text-[#d8cdbd] transition">
-          Contact Us
-        </a>
+<a href="/contact" className="hover:text-[#d8cdbd] transition">
+  Contact Us
+</a>
 
       </div>
 
@@ -585,17 +620,26 @@ const total = subtotal + shipping;
         FOLLOW US
       </h3>
 
-      <div className="flex gap-5 text-white/70 text-3xl">
+      <div className="space-y-3">
 
-        <a
-          href="https://instagram.com/stayilkstore"
-          target="_blank"
-          className="hover:text-[#d8cdbd] transition"
-        >
-          Instagram
-        </a>
+  <a
+    href="https://instagram.com/stayilkstore"
+    target="_blank"
+    className="block hover:text-[#d8cdbd] transition"
+  >
+    Instagram
+  </a>
 
-      </div>
+  <a
+  href="https://www.tiktok.com/@stayilkstore"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block hover:text-[#d8cdbd] transition"
+>
+  TikTok
+</a>
+
+</div>
 
     </div>
 
@@ -752,7 +796,7 @@ const total = subtotal + shipping;
             initial={{ x: 400 }}
             animate={{ x: 0 }}
             exit={{ x: 400 }}
-            className="fixed top-0 right-0 w-[380px] h-screen bg-[#111] border-l border-white/10 z-[9999] p-8 overflow-y-auto"
+            className="fixed top-0 right-0 w-[380px] max-h-[85vh] h-screen bg-[#111] border-l border-white/10 z-[9999] p-8 overflow-y-auto"
           >
 
             <div className="flex items-center justify-between mb-10">
@@ -951,7 +995,7 @@ const total = subtotal + shipping;
     placeholder="Message to the store..."
     value={message}
     onChange={(e) => setMessage(e.target.value)}
-    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none h-28 resize-none"
+    className="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 outline-none h-20 resize-none"
   />
       </div>
 
@@ -961,6 +1005,35 @@ const total = subtotal + shipping;
     >
       {t("checkout")}
     </button>
+    <div className="mt-6 bg-white/5 border border-white/10 rounded-3xl p-5 text-sm text-white/70 leading-8">
+
+  <h3 className="text-white font-bold text-lg mb-4">
+    Payment Methods
+  </h3>
+
+  <p>• Cash on Delivery (UAE only)</p>
+
+  <p>• Bank Transfer</p>
+
+  <div className="mt-5 space-y-2">
+
+  <p>Bank: First Abu Dhabi Bank (FAB)</p>
+
+  <p>Account Name: MALEK ANAS AL OKLA</p>
+
+  <p>SWIFT: NBADAEAA</p>
+
+  <p>IBAN: AE25 0355 6400 1307 6688 773</p>
+
+</div>
+
+  <p className="mt-5 text-[#d8cdbd] leading-8">
+  After payment, send the transfer receipt to our Instagram @stayilkstore
+  <br />
+  or WhatsApp: +971555059115
+</p>
+
+</div>
   </>
 )}
 
@@ -972,6 +1045,161 @@ const total = subtotal + shipping;
 
       </AnimatePresence>
 
-    </main>
+<div className="fixed bottom-8 right-8 z-50">
+
+  {!chatOpen && (
+
+    <button
+      onClick={() => setChatOpen(true)}
+      className="bg-gradient-to-br from-[#e7dccb] to-[#cdbda4] text-black p-5 rounded-full shadow-[0_0_40px_rgba(231,220,203,0.35)] hover:scale-110 transition-all duration-500"
+    >
+      <MessageCircle size={28} />
+    </button>
+
+  )}
+
+    {chatOpen && (
+
+      <div className="w-[92vw] md:w-[380px] h-[85vh] overflow-hidden backdrop-blur-2xl bg-white/5 border border-white/10 rounded-[32px] shadow-[0_0_60px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-white/5 backdrop-blur-xl">
+
+    <div className="flex items-center gap-4">
+
+      <div className="relative">
+
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#e7dccb] to-[#cdbda4] flex items-center justify-center text-black font-black text-lg">
+          S
+        </div>
+
+        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-black rounded-full" />
+
+      </div>
+
+      <div>
+
+        <h3 className="font-bold text-lg">
+          Staylik Concierge
+        </h3>
+
+        <p className="text-green-400 text-xs">
+          Online now
+        </p>
+
+        <p className="text-white/40 text-xs mt-1">
+          Your luxury shopping assistant
+        </p>
+
+      </div>
+
+    </div>
+
+    <button
+      onClick={() => setChatOpen(false)}
+      className="text-white/60 hover:text-white transition"
+    >
+      <X size={22} />
+    </button>
+
+  </div>
+
+        <div className="p-5 space-y-5">
+
+          <textarea
+            value={chatMessage}
+            onChange={(e) => setChatMessage(e.target.value)}
+            placeholder="Ask about sizing, shipping, hoodies..."
+            className="w-full h-28 bg-black/30 backdrop-blur-xl border border-white/10 rounded-3xl p-5 outline-none resize-none text-white placeholder:text-white/30"
+          />
+
+          <button
+            onClick={sendMessage}
+            className="w-full bg-[#d8cdbd] text-black py-3 rounded-full font-bold hover:scale-[1.02] transition"
+          >
+            {chatLoading ? "Typing..." : "Send"}
+          </button>
+
+          <div className="space-y-4 h-[220px] md:h-[320px] overflow-y-auto bg-black/20 border border-white/10 rounded-[28px] p-4 backdrop-blur-xl">
+
+      {messages.map((msg, index) => (
+
+    <div
+      key={index}
+      className={`flex ${
+        msg.role === "user"
+          ? "justify-end"
+          : "justify-start"
+      }`}
+    >
+
+      <div
+        className={`relative max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-7 shadow-sm ${
+          msg.role === "user"
+            ? "bg-[#dcf8c6] text-black rounded-br-md"
+            : "bg-white text-black rounded-bl-md"
+        }`}
+      >
+
+        {msg.text}
+
+      </div>
+
+    </div>
+
+  ))}
+
+  {chatLoading && (
+
+  <div className="flex justify-start">
+
+    <div className="bg-white text-black px-4 py-3 rounded-2xl rounded-bl-md text-sm">
+      Typing...
+    </div>
+
+  </div>
+
+)}
+
+</div>
+
+      </div>
+
+    </div>
+
+  )}
+</div>
+{showCookies && (
+
+  <div className="fixed bottom-5 left-5 right-5 md:left-auto md:w-[420px] bg-[#111111]/95 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 z-[999] shadow-2xl">
+
+    <h3 className="text-white font-bold text-lg mb-2">
+      Accept Cookies
+    </h3>
+
+    <p className="text-white/60 text-sm leading-7">
+      We use cookies to improve your experience, personalize content, and analyze traffic on our website.
+    </p>
+
+    <div className="flex gap-3 mt-5">
+
+      <button
+        onClick={() => setShowCookies(false)}
+        className="flex-1 bg-[#d8cdbd] text-black py-3 rounded-full font-bold"
+      >
+        Accept
+      </button>
+
+      <button
+        onClick={() => setShowCookies(false)}
+        className="flex-1 border border-white/10 py-3 rounded-full text-white"
+      >
+        Decline
+      </button>
+
+    </div>
+
+  </div>
+
+)}
+</main>
   );
 }

@@ -21,7 +21,31 @@ export default function OrdersPage() {
     }
 
   };
+const updateStatus = async (id: number, status: string) => {
 
+  await supabase
+    .from("orders")
+    .update({ status })
+    .eq("id", id);
+
+  fetchOrders();
+
+};
+
+const deleteOrder = async (id: number) => {
+
+  const confirmDelete = confirm("Delete this order?");
+
+  if (!confirmDelete) return;
+
+  await supabase
+    .from("orders")
+    .delete()
+    .eq("id", id);
+
+  fetchOrders();
+
+};
   useEffect(() => {
 
   fetchOrders();
@@ -63,6 +87,7 @@ export default function OrdersPage() {
               <th className="p-6">Amount</th>
               <th className="p-6">Status</th>
               <th className="p-6">Date</th>
+<th className="p-6">Actions</th>
             </tr>
           </thead>
 
@@ -94,13 +119,56 @@ export default function OrdersPage() {
                 </td>
 
                 <td className="p-6">
-                  {order.status}
-                </td>
+
+  <span
+    className={`px-4 py-2 rounded-full text-sm font-semibold ${
+      order.status === "Delivered"
+        ? "bg-green-500/20 text-green-400"
+        : "bg-yellow-500/20 text-yellow-400"
+    }`}
+  >
+    {order.status}
+  </span>
+
+</td>
 
                 <td className="p-6 text-white/40 text-sm">
-                  {new Date(order.created_at).toLocaleDateString()}
+                  {new Date(order.created_at).toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+})}
                 </td>
+<td className="p-6">
 
+  <div className="flex gap-3">
+
+    <button
+      onClick={() =>
+        updateStatus(
+          order.id,
+          order.status === "Pending"
+            ? "Delivered"
+            : "Pending"
+        )
+      }
+      className="bg-[#d8cdbd] text-black px-4 py-2 rounded-full text-xs font-bold hover:scale-105 transition"
+    >
+      {order.status === "Pending"
+        ? "Mark Delivered"
+        : "Mark Pending"}
+    </button>
+
+    <button
+      onClick={() => deleteOrder(order.id)}
+      className="bg-red-500/20 text-red-400 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-500/30 transition"
+    >
+      Delete
+    </button>
+
+  </div>
+
+</td>
               </tr>
 
             ))}

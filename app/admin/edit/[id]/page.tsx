@@ -1,64 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
-export default function ProductPage() {
+export default function EditProductPage() {
 
   const router = useRouter();
+  const params = useParams();
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState<any>(null);
-const [uploading, setUploading] = useState(false);
+  const [image, setImage] = useState("");
 
-  const handleAddProduct = async (e: any) => {
+  const fetchProduct = async () => {
+
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", params.id)
+      .single();
+
+    if (data) {
+      setName(data.name);
+      setPrice(data.price.replace("$", ""));
+      setImage(data.image);
+    }
+
+  };
+
+  useEffect(() => {
+    fetchProduct();
+  }, []);
+
+  const handleUpdate = async (e: any) => {
+
     e.preventDefault();
 
-    setUploading(true);
+    await supabase
+      .from("products")
+      .update({
+        name,
+        price: `$${price}`,
+        image,
+      })
+      .eq("id", params.id);
 
-const fileExt = image.name.split(".").pop();
+    router.push("/admin");
 
-const fileName = `${Date.now()}.${fileExt}`;
-
-await supabase.storage
-  .from("products")
-  .upload(fileName, image);
-
-const { data } = supabase.storage
-  .from("products")
-  .getPublicUrl(fileName);
-
-const imageUrl = data.publicUrl;
-
-const { error } = await supabase
-  .from("products")
-  .insert([
-    {
-      name,
-      price: `$${price}`,
-      image: imageUrl,
-    },
-  ]);
-
-setUploading(false);
-
-if (!error) {
-  router.push("/admin");
-}
   };
 
   return (
     <main className="min-h-screen bg-[#0b0b0b] text-white flex items-center justify-center p-10">
 
       <form
-        onSubmit={handleAddProduct}
+        onSubmit={handleUpdate}
         className="w-full max-w-xl bg-[#151515] border border-white/5 rounded-[30px] p-10 space-y-6"
       >
 
         <h1 className="text-4xl font-black">
-          Add Product
+          Edit Product
         </h1>
 
         <input
@@ -78,17 +79,18 @@ if (!error) {
         />
 
         <input
-  type="file"
-  accept="image/*"
-  onChange={(e: any) => setImage(e.target.files[0])}
-  className="w-full bg-black border border-white/10 rounded-xl p-4"
-/>
+          type="text"
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+          className="w-full bg-black border border-white/10 rounded-xl p-4"
+        />
 
         <button
           type="submit"
           className="w-full bg-[#d8cdbd] text-black font-bold py-4 rounded-xl"
         >
-          {uploading ? "Uploading..." : "Add Product"}
+          Save Changes
         </button>
 
       </form>

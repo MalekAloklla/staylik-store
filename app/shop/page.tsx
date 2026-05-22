@@ -10,7 +10,34 @@ export default function ShopPage() {
   const [products, setProducts] = useState<any[]>([]);
 
   const [search, setSearch] = useState("");
+  const [selectedSizes, setSelectedSizes] = useState<any>({});
 
+const [cart, setCart] = useState<any[]>([]);
+const addToCart = (item: any) => {
+
+  const size = selectedSizes[item.id];
+
+  if (!size) {
+    alert("Please select a size");
+    return;
+  }
+
+  const updatedCart = [
+    ...cart,
+    {
+      ...item,
+      selectedSize: size,
+      quantity: 1,
+    },
+  ];
+
+  setCart(updatedCart);
+
+  localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+  alert(`${item.name} (${size}) added to cart`);
+
+};
   const fetchProducts = async () => {
 
     const { data, error } = await supabase
@@ -27,7 +54,15 @@ export default function ShopPage() {
   useEffect(() => {
     fetchProducts();
   }, []);
+useEffect(() => {
 
+  const savedCart = localStorage.getItem("cart");
+
+  if (savedCart) {
+    setCart(JSON.parse(savedCart));
+  }
+
+}, []);
   const filteredProducts = products.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -41,7 +76,7 @@ export default function ShopPage() {
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-4 flex items-center justify-between gap-6">
 
           <a
-            href="/"
+            href="/cart"
             className="text-xl md:text-2xl font-black tracking-[4px] text-[#d8cdbd]"
           >
             STAYLIK
@@ -64,11 +99,19 @@ export default function ShopPage() {
 
           </div>
 
-          <button className="relative">
+          <a href="/" className="relative">
+
+  {cart.length > 0 && (
+
+    <span className="absolute -top-2 -right-2 bg-[#d8cdbd] text-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+      {cart.length}
+    </span>
+
+  )}
 
             <ShoppingBag className="text-[#d8cdbd]" />
 
-          </button>
+          </a>
 
         </div>
 
@@ -94,8 +137,11 @@ export default function ShopPage() {
 
           {filteredProducts.map((item) => (
 
-            <motion.div
-              key={item.id}
+            <a
+  key={item.id}
+  href={`/product/${item.id}`}
+>
+  <motion.div
               whileHover={{
                 y: -4,
               }}
@@ -122,25 +168,48 @@ export default function ShopPage() {
                 <div className="flex items-center gap-1 text-[#d8cdbd] text-sm mt-3">
                   ★★★★★
                 </div>
+<div className="flex gap-2 mt-4 mb-4">
 
+  {["S", "M", "L", "XL"].map((size) => (
+
+   <button
+  key={size}
+  onClick={() =>
+    setSelectedSizes({
+      ...selectedSizes,
+      [item.id]: size,
+    })
+  }
+  className={`px-3 py-1 rounded-full border transition text-xs ${
+    selectedSizes[item.id] === size
+      ? "bg-[#d8cdbd] text-black border-[#d8cdbd]"
+      : "border-white/10 bg-white/5 hover:bg-[#d8cdbd] hover:text-black"
+  }`}
+>
+  {size}
+</button>
+
+  ))}
+
+</div>
                 <div className="mt-3 flex items-center justify-between">
 
                   <span className="text-[#d8cdbd] text-sm md:text-base font-bold">
                     {item.price}
                   </span>
 
-                  <button className="bg-[#d8cdbd] text-black text-xs px-4 py-2 rounded-full font-semibold hover:scale-105 transition">
-
-                    Buy
-
-                  </button>
+                  <button
+  onClick={() => addToCart(item)}
+  className="bg-[#d8cdbd] text-black text-xs px-4 py-2 rounded-full font-semibold hover:scale-105 transition">
+  Buy
+</button>
 
                 </div>
 
               </div>
 
             </motion.div>
-
+</a>
           ))}
 
         </div>

@@ -29,7 +29,21 @@ const logout = () => {
 };
 
   const [products, setProducts] = useState<any[]>([]);
-const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const deleteProduct = async (id: number) => {
+
+  const confirmDelete = confirm("Delete this product?");
+
+  if (!confirmDelete) return;
+
+  await supabase
+    .from("products")
+    .delete()
+    .eq("id", id);
+
+  fetchProducts();
+
+};
   const fetchProducts = async () => {
   const { data } = await supabase
     .from("products")
@@ -280,13 +294,19 @@ const [orders, setOrders] = useState<any[]>([]);
 
                       <div className="flex gap-3">
 
-                        <button className="bg-white/10 px-4 py-2 rounded-full text-sm hover:bg-white/20 transition">
-                          Edit
-                        </button>
+                        <button
+  onClick={() => router.push(`/admin/edit/${item.id}`)}
+  className="bg-white/10 px-4 py-2 rounded-full text-sm hover:bg-white/20 transition"
+>
+  Edit
+</button>
 
-                        <button className="bg-red-500/20 text-red-300 px-4 py-2 rounded-full text-sm hover:bg-red-500/30 transition">
-                          Delete
-                        </button>
+                        <button
+  onClick={() => deleteProduct(item.id)}
+  className="bg-red-500/20 text-red-300 px-4 py-2 rounded-full text-sm hover:bg-red-500/30 transition"
+>
+  Delete
+</button>
 
                       </div>
 
