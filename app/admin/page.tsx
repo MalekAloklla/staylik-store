@@ -207,9 +207,10 @@ const logout = () => {
               Revenue
             </p>
 
-            <h3 className="text-4xl font-black">
-              $0
-            </h3>
+            <h3 className="text-4xl font-black flex items-center gap-2">
+  <img src="/dirham.png" className="w-6 h-6" />
+  0
+</h3>
 
           </motion.div>
 

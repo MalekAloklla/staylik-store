@@ -26,7 +26,9 @@ const router = useRouter();
   const subtotal = cart.reduce((total, item) => {
 
     const price = Number(
-      item.price.replace("$", "")
+      item.price
+.replace("د.إ","")
+.replace("$","")
     );
 
     return total + price * item.quantity;
@@ -199,16 +201,25 @@ const total = subtotal + shipping;
                     {item.name}
                   </h3>
 
-                  <p className="text-white/50 text-sm">
-                    Size: {item.selectedSize}
-                  </p>
-
                 </div>
 
-                <p className="text-[#d8cdbd] font-bold">
-                  {item.price}
-                </p>
+                <div className="text-[#d8cdbd] font-bold flex items-center gap-1">
 
+  <img
+    src="/dirham.png"
+    className="w-4 h-4"
+  />
+
+  <span>{item.price.replace("د.إ ", "")}</span>
+
+</div>
+<p className="text-white/50">
+  Size: {item.size}
+</p>
+
+<p className="text-white/50">
+  Color: {item.color}
+</p>
               </div>
 
             ))}
@@ -216,20 +227,28 @@ const total = subtotal + shipping;
           </div>
 <div className="flex items-center justify-between text-white/60 mb-4">
   <span>Subtotal</span>
-  <span>${total.toFixed(2)}</span>
+  <div className="flex items-center gap-1">
+  <img src="/dirham.png" className="w-4 h-4" />
+  <span>{subtotal.toFixed(2)}</span>
+</div>
 </div>
 
 <div className="flex items-center justify-between text-white/60 mb-6">
   <span>Shipping</span>
-  <span>$30.00</span>
+
+  <div className="flex items-center gap-1">
+    <img src="/dirham.png" className="w-4 h-4" />
+    <span>30.00</span>
+  </div>
 </div>
           <div className="border-t border-white/10 pt-6 flex items-center justify-between text-2xl font-black mb-10">
 
             <span>Total</span>
 
-            <span className="text-[#d8cdbd]">
-              ${subtotal.toFixed(2)}
-            </span>
+            <div className="text-[#d8cdbd] flex items-center gap-1">
+  <img src="/dirham.png" className="w-5 h-5" />
+  <span>{total.toFixed(2)}</span>
+</div>
 
           </div>
 

@@ -10,27 +10,37 @@ export default function ProductPage() {
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [image, setImage] = useState<any>(null);
+  const [images, setImages] = useState<FileList | null>(null);
 const [uploading, setUploading] = useState(false);
-
+const [sizes, setSizes] = useState("");
+const [colors, setColors] = useState("");
   const handleAddProduct = async (e: any) => {
     e.preventDefault();
 
     setUploading(true);
 
-const fileExt = image.name.split(".").pop();
+if (!images) return;
 
-const fileName = `${Date.now()}.${fileExt}`;
+const uploadedImages: string[] = [];
 
-await supabase.storage
-  .from("products")
-  .upload(fileName, image);
+for (const file of Array.from(images)) {
 
-const { data } = supabase.storage
-  .from("products")
-  .getPublicUrl(fileName);
+  const fileExt = file.name.split(".").pop();
 
-const imageUrl = data.publicUrl;
+  const fileName =
+    `${Date.now()}-${Math.random()}.${fileExt}`;
+
+  await supabase.storage
+    .from("products")
+    .upload(fileName, file);
+
+  const { data } = supabase.storage
+    .from("products")
+    .getPublicUrl(fileName);
+
+  uploadedImages.push(data.publicUrl);
+
+}
 
 const { error } = await supabase
   .from("products")
@@ -38,7 +48,10 @@ const { error } = await supabase
     {
       name,
       price: `$${price}`,
-      image: imageUrl,
+      image: uploadedImages[0],
+images: uploadedImages,
+sizes: sizes.split(","),
+colors: colors.split(","),
     },
   ]);
 
@@ -76,11 +89,24 @@ if (!error) {
           onChange={(e) => setPrice(e.target.value)}
           className="w-full bg-black border border-white/10 rounded-xl p-4"
         />
-
-        <input
+<input
+  type="text"
+  placeholder="Sizes ex: S,M,L,XL"
+  value={sizes}
+  onChange={(e) => setSizes(e.target.value)}
+  className="w-full bg-black border border-white/10 rounded-xl p-4"
+/>
+<input
+  type="text"
+  placeholder="Colors ex: Black,White,Beige,Red"
+  value={colors}
+  onChange={(e) => setColors(e.target.value)}
+  className="w-full bg-black border border-white/10 rounded-xl p-4"
+/>
+  <input
   type="file"
-  accept="image/*"
-  onChange={(e: any) => setImage(e.target.files[0])}
+  multiple
+  onChange={(e) => setImages(e.target.files)}
   className="w-full bg-black border border-white/10 rounded-xl p-4"
 />
 

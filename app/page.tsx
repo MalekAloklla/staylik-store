@@ -110,7 +110,7 @@ await supabase.from("orders").insert([
     address: address,
     message: message,
     product_name: cart.map((item) => item.name).join(", "),
-    amount: `$${total.toFixed(2)}`,
+    amount: total.toFixed(2),
     status: "Pending",
     product_image: cart[0]?.image || "",
   },
@@ -135,10 +135,14 @@ setCart([]);
 const subtotal = cart.reduce((total, item) => {
 
   return (
-    total +
-    Number((item.price || "$0").replace("$", "")) *
-    item.quantity
-  );
+  total +
+  Number(
+    (item.price || "0")
+      .replace("د.إ", "")
+      .replace("$", "")
+  ) *
+  item.quantity
+);
 
 }, 0);
 
@@ -838,13 +842,16 @@ setChatMessage("");
   Qty: {item.quantity}
 </p>
 
-<p className="text-[#d8cdbd] text-sm font-bold mt-1">
-  $
-  {(
-    Number((item.price || "$0").replace("$", "")) *
-    item.quantity
-  ).toFixed(2)}
-</p>
+<div className="text-[#d8cdbd] text-sm font-bold mt-1 flex items-center gap-1">
+  <img src="/dirham.png" className="w-4 h-4" />
+
+  <span>
+    {(
+      Number(item.price || 0) *
+      item.quantity
+    ).toFixed(2)}
+  </span>
+</div>
 
   <div className="flex gap-2 mt-2">
 
@@ -924,9 +931,10 @@ setChatMessage("");
 
                 <span>{t("subtotal")}</span>
 
-                <span>
-                  ${subtotal.toFixed(2)}
-                </span>
+                <div className="flex items-center gap-1">
+  <img src="/dirham.png" className="w-4 h-4" />
+  <span>{subtotal.toFixed(2)}</span>
+</div>
 
               </div>
 
@@ -934,9 +942,10 @@ setChatMessage("");
 
                 <span>{t("shipping")}</span>
 
-                <span>
-                  ${shipping.toFixed(2)}
-                </span>
+                <div className="flex items-center gap-1">
+  <img src="/dirham.png" className="w-4 h-4" />
+  <span>{shipping.toFixed(2)}</span>
+</div>
 
               </div>
 
@@ -946,7 +955,10 @@ setChatMessage("");
 
                 <span className="text-[#d8cdbd]">
 
-                  ${total.toFixed(2)}
+                  <div className="flex items-center gap-1">
+  <img src="/dirham.png" className="w-5 h-5" />
+  <span>{total.toFixed(2)}</span>
+</div>
 
                 </span>
 

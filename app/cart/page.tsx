@@ -63,7 +63,9 @@ export default function CartPage() {
   const subtotal = cart.reduce((total, item) => {
 
     const price = Number(
-      item.price.replace("$", "")
+      item.price
+.replace("د.إ","")
+.replace("$","")
     );
 
     return total + price * item.quantity;
@@ -90,11 +92,11 @@ export default function CartPage() {
           </div>
 
           <Link
-            href="/shop"
-            className="text-white/60 hover:text-[#d8cdbd] transition"
-          >
-            Continue Shopping
-          </Link>
+  href="/"
+  className="text-white/70 hover:text-[#d8cdbd] transition"
+>
+  Back To Home
+</Link>
 
         </div>
 
@@ -146,13 +148,17 @@ export default function CartPage() {
                         {item.name}
                       </h2>
 
-                      <p className="text-[#d8cdbd] font-bold text-xl mb-2">
-                        {item.price}
-                      </p>
+<p className="text-white/40 text-sm">
+  Size: {item.size}
+</p>
 
-                      <p className="text-white/50">
-                        Size: {item.selectedSize}
-                      </p>
+<p className="text-white/40 text-sm">
+  Color: {item.color}
+</p>
+
+                      <p className="text-[#d8cdbd] font-bold text-xl mb-2">
+  {item.price} × {item.quantity}
+</p>
 
                     </div>
 
@@ -214,7 +220,10 @@ export default function CartPage() {
 
                 <div className="flex items-center justify-between text-white/60">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span className="flex items-center gap-1">
+<img src="/dirham.png" className="w-4 h-4"/>
+{subtotal.toFixed(2)}
+</span>
                 </div>
 
                 <div className="flex items-center justify-between text-white/60">
@@ -224,9 +233,10 @@ export default function CartPage() {
 
                 <div className="border-t border-white/10 pt-5 flex items-center justify-between text-2xl font-black">
                   <span>Total</span>
-                  <span className="text-[#d8cdbd]">
-                    ${subtotal.toFixed(2)}
-                  </span>
+                  <div className="text-[#d8cdbd] flex items-center gap-1">
+<img src="/dirham.png" className="w-5 h-5"/>
+{subtotal.toFixed(2)}
+</div>
                 </div>
 
               </div>

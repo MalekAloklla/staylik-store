@@ -27,7 +27,10 @@ export default function AnalyticsPage() {
 
         <div className="bg-[#151515] border border-white/5 rounded-[30px] p-8">
           <p className="text-white/40 mb-3">Revenue</p>
-          <h2 className="text-4xl font-black">$0</h2>
+          <h2 className="text-4xl font-black flex items-center gap-2">
+  <img src="/dirham.png" className="w-6 h-6" />
+  0
+</h2>
         </div>
 
         <div className="bg-[#151515] border border-white/5 rounded-[30px] p-8">

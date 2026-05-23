@@ -9,8 +9,9 @@ export default function ProductDetailsPage() {
   const params = useParams();
 
   const [product, setProduct] = useState<any>(null);
+  const [selectedImage, setSelectedImage] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
-
+const [selectedColor, setSelectedColor] = useState("");
   const fetchProduct = async () => {
 
     const { data } = await supabase
@@ -21,6 +22,9 @@ export default function ProductDetailsPage() {
 
     if (data) {
       setProduct(data);
+      if (data?.images?.length > 0) {
+  setSelectedImage(data.images[0]);
+}
     }
 
   };
@@ -35,16 +39,35 @@ export default function ProductDetailsPage() {
       alert("Please select a size");
       return;
     }
-
+if (!selectedColor) {
+  alert("Please select a color");
+  return;
+}
     const cart = JSON.parse(
       localStorage.getItem("cart") || "[]"
     );
 
-    cart.push({
-      ...product,
-      selectedSize,
-      quantity: 1,
-    });
+    const existingItem = cart.find(
+(item: any) =>
+  item.id === product.id &&
+  item.size === selectedSize &&
+  item.color === selectedColor
+);
+
+if (existingItem) {
+
+  existingItem.quantity += 1;
+
+} else {
+
+  cart.push({
+  ...product,
+  size: selectedSize,
+  color: selectedColor,
+  quantity: 1,
+});
+
+}
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
@@ -66,15 +89,40 @@ export default function ProductDetailsPage() {
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-14 items-start">
 
         {/* IMAGE */}
+        <div>
         <div className="bg-[#151515] rounded-[32px] overflow-hidden">
 
           <img
-            src={product.image}
+            src={selectedImage || product.image}
             className="w-full h-[700px] object-cover"
           />
 
         </div>
 
+<div className="flex gap-4 mt-5 flex-wrap">
+
+  {product.images?.map((img: string, index: number) => (
+
+    <button
+      key={index}
+      onClick={() => setSelectedImage(img)}
+      className={`w-24 h-24 rounded-2xl overflow-hidden border-2 transition ${
+        selectedImage === img
+          ? "border-[#d8cdbd]"
+          : "border-white/10"
+      }`}
+    >
+
+      <img
+        src={img}
+        className="w-full h-full object-cover"
+      />
+
+    </button>
+
+  ))}
+</div>
+</div>
         {/* INFO */}
         <div>
 
@@ -90,38 +138,72 @@ export default function ProductDetailsPage() {
             ★★★★★
           </div>
 
-          <p className="text-3xl font-black text-[#d8cdbd] mb-10">
-            {product.price}
-          </p>
+          <div className="flex items-center gap-2 mb-10">
+  <img
+    src="/dirham.png"
+    className="w-6 h-6"
+  />
 
-          {/* SIZES */}
-          <div className="mb-10">
+  <p className="text-3xl font-black text-[#d8cdbd]">
+    {product.price.replace("د.إ", "")}
+  </p>
+</div>
+<div className="mt-10">
 
-            <p className="text-sm text-white/50 mb-4">
-              Select Size
-            </p>
+  <p className="text-white/50 mb-4">
+    Select Size
+  </p>
 
-            <div className="flex gap-3">
+  <div className="flex gap-3 flex-wrap">
 
-              {["S", "M", "L", "XL"].map((size) => (
+    {product.sizes?.map((size: string, index: number) => (
 
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-5 py-3 rounded-full border transition ${
-                    selectedSize === size
-                      ? "bg-[#d8cdbd] text-black border-[#d8cdbd]"
-                      : "border-white/10 bg-white/5 hover:bg-[#d8cdbd] hover:text-black"
-                  }`}
-                >
-                  {size}
-                </button>
+      <button
+        key={index}
+        onClick={() => setSelectedSize(size)}
+        className={`px-6 py-3 rounded-full border transition ${
+          selectedSize === size
+            ? "bg-[#d8cdbd] text-black border-[#d8cdbd]"
+            : "border-white/10 text-white"
+        }`}
+      >
 
-              ))}
+        {size}
 
-            </div>
+      </button>
 
-          </div>
+    ))}
+
+  </div>
+
+</div>
+<div className="mt-8">
+
+  <p className="text-white/50 mb-4">
+    Select Color
+  </p>
+
+  <div className="flex gap-3 flex-wrap">
+
+    {product.colors?.map((color: string, index: number) => (
+
+      <button
+        key={index}
+        onClick={() => setSelectedColor(color)}
+        className={`px-6 py-3 rounded-full border transition ${
+          selectedColor === color
+            ? "bg-[#d8cdbd] text-black border-[#d8cdbd]"
+            : "border-white/10 text-white"
+        }`}
+      >
+        {color}
+      </button>
+
+    ))}
+
+  </div>
+
+</div>
 
           {/* BUTTON */}
           <button

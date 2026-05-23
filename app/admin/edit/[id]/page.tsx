@@ -23,7 +23,11 @@ export default function EditProductPage() {
 
     if (data) {
       setName(data.name);
-      setPrice(data.price.replace("$", ""));
+      setPrice(
+ data.price
+   .replace("د.إ", "")
+   .replace("$", "")
+);
       setImage(data.image);
     }
 
@@ -41,7 +45,7 @@ export default function EditProductPage() {
       .from("products")
       .update({
         name,
-        price: `$${price}`,
+        price: `د.إ${price}`,
         image,
       })
       .eq("id", params.id);

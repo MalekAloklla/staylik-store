@@ -59,9 +59,10 @@ export default function ProductPage() {
             Designed for streetwear dominance and everyday comfort.
           </p>
 
-          <div className="text-3xl font-bold text-[#d8cdbd] mb-8">
-            $85
-          </div>
+          <div className="text-3xl font-bold text-[#d8cdbd] mb-8 flex items-center gap-2">
+<img src="/dirham.png" className="w-6 h-6"/>
+85
+</div>
 
           {/* SIZES */}
           <div className="mb-8">
