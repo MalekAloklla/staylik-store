@@ -13,6 +13,8 @@ export default function CheckoutPage() {
 const [message, setMessage] = useState("");
   const [address, setAddress] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [proofImage, setProofImage] = useState<File | null>(null);
 const router = useRouter();
   useEffect(() => {
 
@@ -121,12 +123,44 @@ MALEK ANAS AL OKLA
 </div>
 
 <div className="bg-black/30 rounded-[20px] p-4">
+
+<div className="flex justify-between items-center">
+
+<div>
+
 <p className="text-white/40 text-sm">
 IBAN
 </p>
+
 <p className="font-semibold">
 AE25 0355 6400 1307 6688 773
 </p>
+
+</div>
+
+<button
+onClick={() => {
+
+navigator.clipboard.writeText(
+"AE25 0355 6400 1307 6688 773"
+);
+
+setCopied(true);
+
+setTimeout(()=>{
+
+setCopied(false);
+
+},2000);
+
+}}
+className="bg-[#d8cdbd] text-black px-4 py-2 rounded-full text-sm font-bold"
+>
+{copied ? "Copied ✓" : "Copy"}
+</button>
+
+</div>
+
 </div>
 
 <div className="bg-black/30 rounded-[20px] p-4">
@@ -140,14 +174,99 @@ Staylik Store
 
 </div>
 
-<p className="text-white/50 text-sm mb-8">
-Please transfer the amount and keep payment proof.
+<div className="text-white/50 text-sm mb-8">
+<div className="bg-black/30 rounded-[20px] p-4">
+
+<div>
+<p className="text-white/40 text-sm mb-3">
+Upload Payment Proof
 </p>
+</div>
+
+<input
+type="file"
+accept="image/*"
+onChange={(e)=>{
+
+if(e.target.files?.[0]){
+
+setProofImage(
+e.target.files[0]
+);
+
+}
+
+}}
+className="text-sm"
+/>
+
+</div>
+Please transfer the amount and keep payment proof.
+</div>
 
 <button
-onClick={() => {
+onClick={async()=>{
+
+if(!proofImage){
+
+alert("Upload payment proof");
+
+return;
+
+}
+
+const fileName =
+Date.now() + proofImage.name;
+
+const { data, error } =
+await supabase.storage
+.from("payment-proofs")
+.upload(
+fileName,
+proofImage
+);
+const imageUrl = supabase
+.storage
+.from("payment-proofs")
+.getPublicUrl(fileName);
+const { data: lastOrder } = await supabase
+.from("orders")
+.select("id")
+.order("id", { ascending: false })
+.limit(1)
+.single();
+
+if(lastOrder){
+
+await supabase
+.from("orders")
+.update({
+
+payment_proof:
+imageUrl.data.publicUrl
+
+})
+.eq("id", lastOrder.id);
+
+}
+
+console.log(imageUrl);
+
+console.log(data);
+console.log(error);
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
 localStorage.removeItem("cart");
-router.push("/");
+
+router.push("/order-success");
+
 }}
 className="w-full bg-[#d8cdbd] text-black py-4 rounded-full font-bold"
 >
