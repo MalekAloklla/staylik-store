@@ -239,41 +239,30 @@ ${revenue}
             {filteredOrders.map((order) => (
 
               <tr
-key={order.id}
-className="border-b border-white/5 cursor-pointer hover:bg-white/5 transition"
-onClick={() => setSelectedOrder(order)}
+  key={order.id}
+  className="border-b border-white/5 cursor-pointer hover:bg-white/5 transition"
+  onClick={() => setSelectedOrder(order)}
 >
 
-                <td className="p-6">
-
-<div className="flex items-center gap-4">
-
-<img
-  src={order.product_image}
-  className="w-16 h-16 rounded-xl object-cover"
-/>
-
-<div>
-  <p className="font-semibold">
-    {order.product_name}
-  </p>
-</div>
-
-</div>
-
-</td>
 <td className="p-6">
+  <div className="flex items-center gap-4">
 
-<div>
-  <p className="font-semibold">
-    {order.full_name}
-  </p>
+    <img
+      src={order.product_image}
+      className="w-16 h-16 rounded-xl object-cover"
+    />
 
-  <p className="text-white/40 text-sm">
-    {order.customer_email}
-  </p>
-</div>
+    <div>
+      <p className="font-semibold">
+        {order.product_name}
+      </p>
+    </div>
 
+  </div>
+</td>
+
+<td className="p-6">
+  {order.full_name}
 </td>
 
 <td className="p-6 text-[#d8cdbd]">
@@ -284,70 +273,82 @@ onClick={() => setSelectedOrder(order)}
   {order.color}
 </td>
 
-                <td className="p-6 text-[#d8cdbd]">
-                  {order.amount}
-                </td>
-
-                <td className="p-6">
-
-  <span
-    className={`px-4 py-2 rounded-full text-sm font-semibold ${
-      order.status === "Delivered"
-        ? "bg-green-500/20 text-green-400"
-        : "bg-yellow-500/20 text-yellow-400"
-    }`}
-  >
-    {order.status}
-  </span>
-
+<td className="p-6 text-[#d8cdbd]">
+  {order.amount}
 </td>
 
-                <td className="p-6 text-white/40 text-sm">
-                  {new Date(order.created_at).toLocaleDateString("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-})}
-                </td>
 <td className="p-6">
 
-  <div className="flex gap-3">
+<span
+className={`px-4 py-2 rounded-full text-sm font-semibold ${
+order.status === "Delivered"
+? "bg-green-500/20 text-green-400"
+: "bg-yellow-500/20 text-yellow-400"
+}`}
+>
 
-    <button
-      onClick={() =>
-        updateStatus(
-          order.id,
-          order.status === "Pending"
-            ? "Delivered"
-            : "Pending"
-        )
-      }
-      className="bg-[#d8cdbd] text-black px-4 py-2 rounded-full text-xs font-bold hover:scale-105 transition"
-    >
-      {order.status === "Pending"
-        ? "Mark Delivered"
-        : "Mark Pending"}
-    </button>
+{order.status}
 
-    <button
-      onClick={() => deleteOrder(order.id)}
-      className="bg-red-500/20 text-red-400 px-4 py-2 rounded-full text-xs font-bold hover:bg-red-500/30 transition"
-    >
-      Delete
-    </button>
-
-  </div>
+</span>
 
 </td>
-              </tr>
 
+<td className="p-6 text-white/40 text-sm">
+
+{new Date(order.created_at).toLocaleDateString("en-GB",{
+day:"2-digit",
+month:"short",
+year:"numeric",
+})}
+
+</td>
+
+<td className="p-6">
+
+<div className="flex gap-3">
+
+{order.payment_proof && (
+
+<a
+href={order.payment_proof}
+target="_blank"
+className="px-4 py-2 rounded-full bg-[#d8cdbd] text-black font-semibold hover:scale-105 transition"
+onClick={(e)=>e.stopPropagation()}
+>
+
+View Proof
+
+</a>
+
+)}
+
+<button
+onClick={(e)=>{
+e.stopPropagation();
+
+updateStatus(
+order.id,
+order.status === "Pending"
+? "Delivered"
+: "Pending"
+)
+}}
+className="px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition"
+>
+
+Update
+
+</button>
+
+</div>
+
+</td>
+
+</tr>
             ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
+</tbody>
+</table>
+</div>
 {selectedOrder && (
 
 <div

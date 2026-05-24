@@ -13,9 +13,39 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 export default function AdminPage() {
-
 const router = useRouter();
 
+useEffect(() => {
+
+  const checkAdmin = async () => {
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+
+      router.push("/login");
+      return;
+
+    }
+
+    if (
+      session.user.email !==
+      "mk20082030@gmail.com"
+    ) {
+
+      await supabase.auth.signOut();
+
+      router.push("/login");
+
+    }
+
+  };
+
+  checkAdmin();
+
+}, []);
 
 const logout = () => {
 

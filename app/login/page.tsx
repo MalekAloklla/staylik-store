@@ -14,18 +14,23 @@ export default function LoginPage() {
 
   const login = async () => {
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const { data, error } =
+  await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    if (!error) {
-      router.push("/admin");
-    } else {
-      alert("Wrong credentials");
-    }
+  console.log(data);
+  console.log(error);
 
-  };
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  router.push("/admin");
+
+};
 
   return (
     <main className="min-h-screen bg-black flex items-center justify-center px-6">
