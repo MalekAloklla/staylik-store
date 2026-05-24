@@ -12,6 +12,7 @@ export default function ProductDetailsPage() {
   const [selectedImage, setSelectedImage] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
 const [selectedColor, setSelectedColor] = useState("");
+const [showAdded, setShowAdded] = useState(false);
   const fetchProduct = async () => {
 
     const { data } = await supabase
@@ -71,7 +72,10 @@ if (existingItem) {
 
     localStorage.setItem("cart", JSON.stringify(cart));
 
-    alert("Added to cart");
+    setShowAdded(true);
+    setTimeout(() => {
+  setShowAdded(false);
+}, 2500);
 
   };
 
@@ -83,7 +87,26 @@ if (existingItem) {
     );
   }
 
-  return (
+return (
+
+<>
+
+{showAdded && (
+
+<div className="fixed top-8 left-1/2 -translate-x-1/2 z-50">
+
+<div className="bg-[#151515] border border-[#d8cdbd]/20 px-8 py-4 rounded-[20px] shadow-xl">
+
+<p className="text-[#d8cdbd] font-semibold">
+✓ Added to cart successfully
+</p>
+
+</div>
+
+</div>
+
+)}
+
     <main className="min-h-screen bg-[#0b0b0b] text-white px-6 py-16">
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-14 items-start">
@@ -183,7 +206,7 @@ if (existingItem) {
     Select Color
   </p>
 
-  <div className="flex gap-3 flex-wrap">
+  <div className="flex gap-3 flex-wrap mb-8">
 
     {product.colors?.map((color: string, index: number) => (
 
@@ -235,5 +258,8 @@ if (existingItem) {
       </div>
 
     </main>
-  );
+
+</>
+
+);
 }

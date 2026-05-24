@@ -12,6 +12,7 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
 const [message, setMessage] = useState("");
   const [address, setAddress] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 const router = useRouter();
   useEffect(() => {
 
@@ -52,34 +53,112 @@ const total = subtotal + shipping;
 
   for (const item of cart) {
 
-    await supabase
-      .from("orders")
-      .insert([
-        {
-          full_name: fullName,
-          phone,
-          email,
-          message,
-          address,
-          product_name: item.name,
-          amount: item.price,
-          status: "Pending",
-        },
-      ]);
+    const { data, error } = await supabase
+.from("orders")
+.insert([
+{
+    full_name: fullName,
+    phone,
+    customer_email: email,
+    message,
+    address,
+
+    product_name: item.name,
+    amount: item.price,
+
+    size: item.size,
+    color: item.color,
+    product_image: item.image,
+
+    status: "Pending",
+},
+]);
+
+console.log(error);
 
   }
 
   localStorage.removeItem("cart");
 
-  alert("Order placed successfully");
-
-  router.push("/");
+  setShowSuccessModal(true);
 
 };
 
   return (
     <main className="min-h-screen bg-[#0b0b0b] text-white px-6 py-14">
+{showSuccessModal && (
 
+<div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+
+<div className="bg-[#151515] border border-white/10 rounded-[35px] p-10 w-[500px] max-w-[90%]">
+
+<p className="text-[#d8cdbd] uppercase tracking-[5px] text-xs mb-4">
+Payment
+</p>
+
+<h2 className="text-3xl font-black mb-6">
+✅ Order Placed Successfully
+</h2>
+
+<div className="space-y-4 mb-8">
+
+<div className="bg-black/30 rounded-[20px] p-4">
+<p className="text-white/40 text-sm">
+Bank Name
+</p>
+<p className="font-semibold">
+First Abu Dhabi Bank (FAB)
+</p>
+</div>
+
+<div className="bg-black/30 rounded-[20px] p-4">
+<p className="text-white/40 text-sm">
+Account Holder
+</p>
+<p className="font-semibold">
+MALEK ANAS AL OKLA
+</p>
+</div>
+
+<div className="bg-black/30 rounded-[20px] p-4">
+<p className="text-white/40 text-sm">
+IBAN
+</p>
+<p className="font-semibold">
+AE25 0355 6400 1307 6688 773
+</p>
+</div>
+
+<div className="bg-black/30 rounded-[20px] p-4">
+<p className="text-white/40 text-sm">
+Account Holder
+</p>
+<p className="font-semibold">
+Staylik Store
+</p>
+</div>
+
+</div>
+
+<p className="text-white/50 text-sm mb-8">
+Please transfer the amount and keep payment proof.
+</p>
+
+<button
+onClick={() => {
+localStorage.removeItem("cart");
+router.push("/");
+}}
+className="w-full bg-[#d8cdbd] text-black py-4 rounded-full font-bold"
+>
+Done
+</button>
+
+</div>
+
+</div>
+
+)}
       <div className="max-w-7xl mx-auto grid lg:grid-cols-[1fr_420px] gap-10">
 
         {/* LEFT */}
